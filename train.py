@@ -25,7 +25,7 @@ def main(cfg):
     )
     lr_monitor = LearningRateMonitor(logging_interval="step")
     callbacks = [checkpoint, lr_monitor]
-
+    print(cfg)
     # Set modules and trainer
     if cfg.data.modality in ["audio", "visual"]:
         from lightning import ModelModule

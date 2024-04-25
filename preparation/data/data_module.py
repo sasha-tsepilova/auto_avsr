@@ -10,22 +10,14 @@ import torchvision
 
 
 class AVSRDataLoader:
-    def __init__(self, modality, detector="retinaface", convert_gray=True):
+    def __init__(self, modality):
         self.modality = modality
         if modality == "video":
-            if detector == "retinaface":
-                from detectors.retinaface.detector import LandmarksDetector
-                from detectors.retinaface.video_process import VideoProcess
+            from detectors.mediapipe.detector import LandmarksDetector
+            from detectors.mediapipe.video_process import VideoProcess
 
-                self.landmarks_detector = LandmarksDetector(device="cuda:0")
-                self.video_process = VideoProcess(convert_gray=convert_gray)
-
-            if detector == "mediapipe":
-                from detectors.mediapipe.detector import LandmarksDetector
-                from detectors.mediapipe.video_process import VideoProcess
-
-                self.landmarks_detector = LandmarksDetector()
-                self.video_process = VideoProcess(convert_gray=convert_gray)
+            self.landmarks_detector = LandmarksDetector()
+            self.video_process = VideoProcess()
 
     def load_data(self, data_filename, landmarks=None, transform=True):
         if self.modality == "audio":

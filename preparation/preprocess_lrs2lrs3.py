@@ -22,12 +22,7 @@ parser.add_argument(
     required=True,
     help="Directory of original dataset",
 )
-parser.add_argument(
-    "--detector",
-    type=str,
-    default="retinaface",
-    help="Type of face detector. (Default: retinaface)",
-)
+
 parser.add_argument(
     "--landmarks-dir",
     type=str,
@@ -84,9 +79,7 @@ text_transform = TextTransform()
 
 # Load Data
 args.data_dir = os.path.normpath(args.data_dir)
-vid_dataloader = AVSRDataLoader(
-    modality="video", detector=args.detector, convert_gray=False
-)
+vid_dataloader = AVSRDataLoader(modality="video")
 aud_dataloader = AVSRDataLoader(modality="audio")
 
 seg_vid_len = seg_duration * 25
@@ -140,7 +133,7 @@ elif dataset == "lrs2":
         ]
     elif args.subset == "train":
         filenames = [
-            os.path.join(args.data_dir, "main", _.split()[0] + ".mp4")
+            os.path.join(args.data_dir, "trainval", _.split()[0] + ".mp4")
             for _ in open(
                 os.path.join(os.path.dirname(args.data_dir), args.subset) + ".txt"
             )

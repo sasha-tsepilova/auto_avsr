@@ -95,7 +95,8 @@ def save_vid_aud_txt(
 
 def save2vid(filename, vid, frames_per_second):
     os.makedirs(os.path.dirname(filename), exist_ok=True)
-    torchvision.io.write_video(filename, vid, frames_per_second)
+    orig_shape = vid.shape
+    torchvision.io.write_video(filename, vid.unsqueeze(-1).expand(orig_shape[0], orig_shape[1], orig_shape[2], 3), frames_per_second)
 
 
 def save2aud(filename, aud, sample_rate):

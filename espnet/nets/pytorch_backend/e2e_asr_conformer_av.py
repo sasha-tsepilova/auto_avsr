@@ -64,13 +64,14 @@ class E2E(torch.nn.Module):
         self.a_upsample_ratio = args.a_upsample_ratio
 
         self.fusion = MLPHead(
-            idim=args.adim + args.aux_adim,
+            idim=args.adim,
             hdim=args.fusion_hdim,
             odim=args.adim,
             norm=args.fusion_norm,
         )
 
         self.proj_decoder = None
+        # self.video_decoder = torch.nn.Conv2d()
         if args.adim != args.ddim:
             self.proj_decoder = torch.nn.Linear(args.adim, args.ddim)
 
@@ -119,8 +120,9 @@ class E2E(torch.nn.Module):
         audio_padding_mask = make_non_pad_mask(audio_lengths).to(video.device).unsqueeze(-2)
 
         audio_feat, _ = self.aux_encoder(audio, audio_padding_mask)
+        print(video_feat.shape, audio_feat.shape)
+        x = self.fusion(video_feat+ audio_feat)
 
-        x = self.fusion(torch.cat((video_feat, audio_feat), dim=-1))
 
         # ctc loss
         loss_ctc, ys_hat = self.ctc(x, video_lengths, label)
