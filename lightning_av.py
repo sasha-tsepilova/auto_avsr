@@ -87,10 +87,10 @@ class ModelModule(LightningModule):
         batch_size = len(batch["videos"])
 
         if step_type == "train":
-            self.log("loss", loss, on_step=True, on_epoch=True, batch_size=batch_size)
-            self.log("loss_ctc", loss_ctc, on_step=False, on_epoch=True, batch_size=batch_size)
-            self.log("loss_att", loss_att, on_step=False, on_epoch=True, batch_size=batch_size)
-            self.log("decoder_acc", acc, on_step=True, on_epoch=True, batch_size=batch_size)
+            self.log("loss", loss, on_step=True, on_epoch=True, batch_size=batch_size, logger=True, prog_bar=True)
+            self.log("loss_ctc", loss_ctc, on_step=False, on_epoch=True, batch_size=batch_size, logger=True)
+            self.log("loss_att", loss_att, on_step=False, on_epoch=True, batch_size=batch_size, logger = True)
+            self.log("decoder_acc", acc, on_step=True, on_epoch=True, batch_size=batch_size, logger=True, prog_bar=True)
         else:
             self.log("loss_val", loss, batch_size=batch_size)
             self.log("loss_ctc_val", loss_ctc, batch_size=batch_size)

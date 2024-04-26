@@ -58,7 +58,7 @@ class DataModule(LightningDataModule):
         return torch.utils.data.DataLoader(
             ds,
             num_workers=12,
-            pin_memory=False,
+            pin_memory=True,
             batch_sampler=sampler,
             collate_fn=collate_fn,
         )

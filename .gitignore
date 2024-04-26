@@ -8,3 +8,6 @@ outputs/
 *.tar
 .DS_Store
 exp
+tb_logs
+tb_logs_2
+lightning_logs
