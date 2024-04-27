@@ -33,7 +33,7 @@ def main(cfg):
         from lightning_av import ModelModule
     modelmodule = ModelModule(cfg)
     datamodule = DataModule(cfg)
-    modelmodule.model.load_state_dict(torch.load("../avsr_trlrwlrs2lrs3vox2avsp_base.pth", map_location=lambda storage, loc: storage))
+    modelmodule.model.load_state_dict(torch.load("./avsr_trlrwlrs2lrs3vox2avsp_base.pth", map_location=lambda storage, loc: storage))
 
     for param in modelmodule.model.parameters():
         param.requires_grad = False
@@ -43,7 +43,7 @@ def main(cfg):
     trainer = Trainer(
         **cfg.trainer,
         log_every_n_steps=1,
-        logger=TensorBoardLogger("tb_logs_2", name="avsr_land", default_hp_metric=False),
+        logger=TensorBoardLogger("tb_transfer_learning_not_rt", name="auto_avsr", default_hp_metric=False),
         callbacks=callbacks,
         strategy=DDPPlugin(find_unused_parameters=False)
     )

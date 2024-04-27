@@ -6,7 +6,7 @@ import torchaudio
 import torchvision
 from datamodule.transforms import AudioTransform, VideoTransform
 from datamodule.av_dataset import cut_or_pad
-
+import time
 
 class InferencePipeline(torch.nn.Module):
     def __init__(self, cfg, detector="retinaface"):
@@ -15,16 +15,10 @@ class InferencePipeline(torch.nn.Module):
         if self.modality in ["audio", "audiovisual"]:
             self.audio_transform = AudioTransform(subset="test")
         if self.modality in ["video", "audiovisual"]:
-            if detector == "mediapipe":
-                from preparation.detectors.mediapipe.detector import LandmarksDetector
-                from preparation.detectors.mediapipe.video_process import VideoProcess
-                self.landmarks_detector = LandmarksDetector()
-                self.video_process = VideoProcess(convert_gray=False)
-            elif detector == "retinaface":
-                from preparation.detectors.retinaface.detector import LandmarksDetector
-                from preparation.detectors.retinaface.video_process import VideoProcess
-                self.landmarks_detector = LandmarksDetector(device="cuda:0")
-                self.video_process = VideoProcess(convert_gray=False)
+            from preparation.detectors.mediapipe.detector import LandmarksDetector
+            from preparation.detectors.mediapipe.video_process import VideoProcess
+            self.landmarks_detector = LandmarksDetector()
+            self.video_process = VideoProcess()
             self.video_transform = VideoTransform(subset="test")
 
         if cfg.data.modality in ["audio", "video"]:
@@ -34,6 +28,7 @@ class InferencePipeline(torch.nn.Module):
         self.modelmodule = ModelModule(cfg)
         self.modelmodule.model.load_state_dict(torch.load(cfg.pretrained_model_path, map_location=lambda storage, loc: storage))
         self.modelmodule.eval()
+        self.modelmodule.double()
 
 
     def forward(self, data_filename):
@@ -50,9 +45,10 @@ class InferencePipeline(torch.nn.Module):
             video = self.load_video(data_filename)
             landmarks = self.landmarks_detector(video)
             video = self.video_process(video, landmarks)
-            video = torch.tensor(video)
+            orig_shape = video.shape
+            video = torch.tensor(video, dtype=torch.double).unsqueeze(-1).expand(orig_shape[0], orig_shape[1], orig_shape[2], 3)
             video = video.permute((0, 3, 1, 2))
-            video = self.video_transform(video)
+            video = self.video_transform(video).double()
 
         if self.modality == "video":
             with torch.no_grad():
@@ -72,7 +68,9 @@ class InferencePipeline(torch.nn.Module):
                 print(f"The ideal video frame rate is set to 25 fps, but the current frame rate ratio, calculated as {len(video)*16000/len(audio):.1f}, which may affect the performance.")
                 audio = cut_or_pad(audio, len(video) * 640)
             with torch.no_grad():
-                transcript = self.modelmodule(video, audio)
+                # print(video.dtype)
+                # print(audio.dtype)
+                transcript = self.modelmodule(video, audio.double())
 
         return transcript
 
@@ -95,9 +93,11 @@ class InferencePipeline(torch.nn.Module):
 @hydra.main(version_base="1.3", config_path="configs", config_name="config")
 def main(cfg):
     pipeline = InferencePipeline(cfg)
+    start = time.time()
     transcript = pipeline(cfg.file_path)
+    end = time.time()
     print(f"transcript: {transcript}")
-
+    print("TIME TAKEN:", start - end)
 
 if __name__ == "__main__":
     main()
