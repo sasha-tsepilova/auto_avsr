@@ -11,3 +11,10 @@ exp
 tb_logs
 tb_logs_2
 lightning_logs
+preprocessed_train
+preprocessed_test
+tb_transfer_learning_not_rt
+venv
+avsr_trlrwlrs2lrs3vox2avsp_base.pth
+preprocessed_train.zip
+preprocessed_test.zip
