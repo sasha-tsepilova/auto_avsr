@@ -1,11 +1,11 @@
-This repository is a part of the thesis arthefacts. It contains modified codes from [auto-avsr](https://github.com/mpc001/auto_avsr), [torch audio](https://github.com/pytorch/audio), adapted to the new way of preprocessing visual stream. To use any of the scripts you can follow the same instruction as in the original repositories. To train the Auto-AVSR in the same way as described in thesis, you'll need to add the [`avsr_trlrwlrs2lrs3vox2avsp_base.pth`](https://drive.google.com/file/d/1mU6MHzXMiq1m6GI-8gqT2zc2bdStuBXu/view?usp=sharing) to the root directory of the project. More detailed explanation for Auto AVSR is provided below. For Real-time version - refer to [avsr](./avsr/)
+This repository is a part of the thesis artifacts. It contains modified codes from [auto-avsr](https://github.com/mpc001/auto_avsr), [torch audio](https://github.com/pytorch/audio), adapted to the new way of preprocessing visual stream. To use any of the scripts, you can follow the same instructions as in the original repositories. To train the Auto-AVSR in the same way as described in the thesis, you'll need to add the [`avsr_trlrwlrs2lrs3vox2avsp_base.pth`](https://drive.google.com/file/d/1mU6MHzXMiq1m6GI-8gqT2zc2bdStuBXu/view?usp=sharing) to the root directory of the project. A more detailed explanation for Auto AVSR is provided below. For the Real-time version - refer to [avsr](./avsr/)
 
 ## AUTO AVSR retraining
-We changed the Video Preprocessor and corresponding parts of the code to work correctly with the [new visual representation](https://github.com/sasha-tsepilova/lipreading_enhancment/tree/visual_preprocessing). For the convenience the interface is kept the same. For training the model we used transfer learning techniques, retraining only visual frontend, so if you want to run it you should include [`avsr_trlrwlrs2lrs3vox2avsp_base.pth`](https://drive.google.com/file/d/1mU6MHzXMiq1m6GI-8gqT2zc2bdStuBXu/view?usp=sharing) to the root dirrectory of the project.
+We changed the Video Preprocessor and corresponding parts of the code to work correctly with the [new visual representation](https://github.com/sasha-tsepilova/lipreading_enhancment/tree/visual_preprocessing). For convenience, the interface is kept the same. For training the model, we used transfer learning techniques, retraining only the visual front, so if you want to run it, you should include [`avsr_trlrwlrs2lrs3vox2avsp_base.pth`](https://drive.google.com/file/d/1mU6MHzXMiq1m6GI-8gqT2zc2bdStuBXu/view?usp=sharing) to the root directory of the project.
 For easier usage we provide the related parts from [auto-avsr](https://github.com/mpc001/auto_avsr) readme here:
 
 ### Prerequisites
-After cloning the repo, you can use following comands to install prerequisites.
+After cloning the repo, you can use the following commands to install prerequisites.
 ```Shell
 pip install torch torchvision torchaudio
 pip install pytorch-lightning==1.5.10
@@ -22,7 +22,7 @@ cd fairseq
 pip install --editable ./
 cd ..
 ```
-Last step - prepare the dataset. See the instructions in the [preparation](./preparation) folder.
+The last step is to prepare the dataset. See the instructions in the [preparation](./preparation) folder.
 
 ### Training
 
@@ -52,7 +52,7 @@ python train.py exp_dir=[exp_dir] \
 
 - `data.dataset.val_file`: Filename of validation label list, default: `lrs3_test_transcript_lengths_seg24s.csv`.
 - `pretrained_model_path`: Path to the pre-trained model, default: `null`.
-- `transfer_frontend` Flag to load the weights of front-end module, works with `pretrained_model_path`.
+- `transfer_frontend` Flag to load the weights of the front-end module works with `pretrained_model_path.`
 - `transfer_encoder` Flag to load the weights of encoder, works with `pretrained_model_path`.
 - `trainer.max_epochs`: Number of epochs, default: 75.
 - `trainer.gpus`: Number of GPUs to train on on each machine, default: -1, which use all gpus.
@@ -65,8 +65,8 @@ python train.py exp_dir=[exp_dir] \
 <details open>
   <summary><strong>Note</strong></summary>
 
-- For lrs3, start by training from scratch on a subset (23h, max duration=4 seconds) at a learning rate of 0.0002 (see [model-zoo](#model-zoo)). Then fine-tune on the full set with a learning rate of 0.001. A script for subset creation is available [here](./preparation/limit_length.py). For training new datasets, please refer to [instruction](INSTRUCTION.md).
-- If you want to monitor the training process, customise [logger](https://lightning.ai/docs/pytorch/1.5.8/api_references.html#loggers-api) within `pytorch_lightning.Trainer()`.
+- For lrs3, start by training from scratch on a subset (23h, max duration=4 seconds) at a learning rate of 0.0002 (see [model-zoo](#model-zoo)). Then, fine-tune on the full set with a learning rate of 0.001. A script for subset creation is available [here](./preparation/limit_length.py). Please refer to [instruction](INSTRUCTION.md) for training new datasets.
+- If you want to monitor the training process, customize [logger](https://lightning.ai/docs/pytorch/1.5.8/api_references.html#loggers-api) within `pytorch_lightning.Trainer()`.
 - To maximize resource utilization, set `data.max_frames` to the largest to fit into your GPU memory.
 
 </details>
@@ -117,13 +117,14 @@ python demo.py  data.modality=[modality] \
 
 ## Results
 
-Model | Training data | WER on LRS3 test
+Model | Training data (training hours) | WER on LRS3 test
 --- | --- | --- 
-Auto AVSR | LRS3 + VOXCeleb | 0.93
-Ours | 25% LRS 3 | 1.83
-ASR (auto avsr part) | LRS 3 | 2.04
+Auto AVSR | LRS3 + VOXCeleb (3448) | 0.93
+Auto AVSR | LRW (157) + LRS 3 (438) | 2.3
+Ours | 25% LRS3 (110) | 4.2
+RNN-T | YT (31000) | 4.5
 
-Due to the lack of resources, we couldn't use more training data, but this table shows that we can achieve good results with new preprocessing method, even on small dataset.
+Due to the lack of resources, we couldn't use more training data, but this table shows that we can achieve good results with the new preprocessing method, even on a small dataset.
 
 
 ## Acknowledgement
